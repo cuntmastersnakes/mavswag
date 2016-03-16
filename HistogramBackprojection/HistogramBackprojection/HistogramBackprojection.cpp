@@ -14,7 +14,7 @@
 using namespace cv;
 using namespace std;
 
-Mat image, blurred;
+Mat image, blurred,threshed,closed;
 
 bool backprojMode = false;
 bool selectObject = false;
@@ -170,6 +170,11 @@ int main(int argc, const char** argv)
 
 				calcBackProject(&hue, 1, 0, hist, backproj, &phranges);
 				backproj &= mask;
+				threshold(backproj, threshed, 127, 255, 0);
+				Mat element = getStructuringElement(0, Size(9, 9));
+				morphologyEx(threshed, closed, 1, element);
+				morphologyEx(closed, backproj, 0, element);
+				///Here is where the backprojection image is created
 				RotatedRect trackBox = CamShift(backproj, trackWindow,
 					TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 10, 1));
 				if (trackWindow.area() <= 1)
